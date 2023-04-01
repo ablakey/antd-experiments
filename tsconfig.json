@@ -1,12 +1,19 @@
 {
     "compilerOptions": {
-      "target": "ES2015",
-      "module": "ES2015",
-      "strict": true,
-      "esModuleInterop": true,
-      "skipLibCheck": true,
-      "forceConsistentCasingInFileNames": true,
-      "jsx": "react-jsx"
+        "moduleResolution": "node",
+        "outDir": "./dist/",
+        "jsx": "react-jsx",
+        "module": "es2015",
+        "lib": ["esnext", "es2019", "dom"],
+        "target": "es2015",
+        "allowJs": true,
+        "skipLibCheck": true,
+        "noImplicitAny": true,
+        "sourceMap": true,
+        "allowSyntheticDefaultImports": true,
+        "experimentalDecorators": true,
+        "strict": true,
+        "noUnusedLocals": true,
     },
     "$schema": "https://json.schemastore.org/tsconfig",
     "display": "Recommended"
