@@ -3,32 +3,36 @@ import { Table, theme } from "antd";
 import classNames from "classnames";
 import ResizeObserver from "rc-resize-observer";
 import React, { useEffect, useRef, useState } from "react";
-import { VariableSizeGrid as Grid } from "react-window";
+import { VariableSizeGrid } from "react-window";
 
-const HEADER_HEIGHT = 52; // Depends on "size" I think.
+// const HEADER_HEIGHT = 52; // `rowSelection` adds 3 pixels to the height.
+const HEADER_HEIGHT = 55; // Depends on "size" I think.
+
+type VirtualTableProps<T> = Omit<TableProps<T>, "scroll" | "rowSelection"> & { rowSelection: {} }; // TODO
 
 /**
  * This is meant to be a generalized table that takes care of its own dimensions.  Application-specific behaviour
  * such as column details and data needs to live outside of this component.
  */
-export function VirtualTable<T extends object>(props: TableProps<T>) {
+export function VirtualTable<T extends object>(props: VirtualTableProps<T>) {
   const [height, setHeight] = useState(0);
-  console.log(height);
   return (
     <ResizeObserver onResize={({ height }) => setHeight(height)}>
       <div style={{ height: "100%" }}>
-        <VirtualTableInner {...props} scroll={{ y: height - HEADER_HEIGHT, x: "100vw" }} />
+        <VirtualTableInner {...props} scroll={{ y: height - HEADER_HEIGHT, x: "100%" }} />
       </div>
     </ResizeObserver>
   );
 }
 
 function VirtualTableInner<T extends object>(props: TableProps<T>) {
-  const { columns, scroll } = props;
+  const { columns, scroll, dataSource, ...restProps } = props;
   const [tableWidth, setTableWidth] = useState(0);
   const { token } = theme.useToken();
 
   const widthColumnCount = columns!.filter(({ width }) => !width).length;
+
+  // Make sure every column has a known width.
   const mergedColumns = columns!.map((column) => {
     if (column.width) {
       return column;
@@ -41,24 +45,6 @@ function VirtualTableInner<T extends object>(props: TableProps<T>) {
   });
 
   const gridRef = useRef<any>();
-  const [connectObject] = useState<any>(() => {
-    const obj = {};
-    Object.defineProperty(obj, "scrollLeft", {
-      get: () => {
-        if (gridRef.current) {
-          return gridRef.current?.state?.scrollLeft;
-        }
-        return null;
-      },
-      set: (scrollLeft: number) => {
-        if (gridRef.current) {
-          gridRef.current.scrollTo({ scrollLeft });
-        }
-      },
-    });
-
-    return obj;
-  });
 
   const resetVirtualGrid = () => {
     gridRef.current?.resetAfterIndices({
@@ -67,14 +53,20 @@ function VirtualTableInner<T extends object>(props: TableProps<T>) {
     });
   };
 
-  useEffect(() => resetVirtualGrid, [tableWidth]);
+  /**
+   * If the tableWidth or column config changes (because it can affect the width calculations), reset the grid.
+   * This reset invalidates cached information like calculated widths.
+   */
+  useEffect(() => resetVirtualGrid, [tableWidth, columns?.length]);
 
-  const renderVirtualList = (rawData: readonly T[], { scrollbarSize, ref, onScroll }: any) => {
-    ref.current = connectObject;
+  const renderVirtualList: NonNullable<TableProps<T>["components"]>["body"] = (
+    rawData: readonly T[],
+    { scrollbarSize, ref, onScroll }
+  ) => {
     const totalHeight = rawData.length * 54;
 
     return (
-      <Grid
+      <VariableSizeGrid
         ref={gridRef}
         className="virtual-grid"
         columnCount={mergedColumns.length}
@@ -88,9 +80,6 @@ function VirtualTableInner<T extends object>(props: TableProps<T>) {
         rowCount={rawData.length}
         rowHeight={() => 54}
         width={tableWidth}
-        onScroll={({ scrollLeft }: { scrollLeft: number }) => {
-          onScroll({ scrollLeft });
-        }}
       >
         {({
           columnIndex,
@@ -116,7 +105,7 @@ function VirtualTableInner<T extends object>(props: TableProps<T>) {
             {(rawData[rowIndex] as any)[(mergedColumns as any)[columnIndex].dataIndex]}
           </div>
         )}
-      </Grid>
+      </VariableSizeGrid>
     );
   };
 
@@ -127,7 +116,7 @@ function VirtualTableInner<T extends object>(props: TableProps<T>) {
       }}
     >
       <Table
-        {...props}
+        {...restProps}
         className="virtual-table"
         columns={mergedColumns}
         pagination={false}

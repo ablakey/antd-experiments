@@ -20,21 +20,44 @@ export function VirtualTableExperiment() {
   const [count, setCount] = useState(MIN_COUNT);
   const [height, setHeight] = useState(400);
   const [width, setWidth] = useState(400);
+  const [columnCount, setColumnCount] = useState(3);
 
   const data = useMemo(() => {
     return Array.from({ length: count }, (_, key) => ({ key }));
   }, [count]);
 
+  const cols = useMemo(() => columns.slice(0, columnCount), [columnCount]);
+
   return (
     <>
       <Space>
         <Button onClick={() => setCount(random(MIN_COUNT, MAX_COUNT))}>Randomize Data</Button>
-        <Slider min={400} max={800} style={{ width: 300 }} onAfterChange={setHeight} />
+        <span>Height:</span>
+        <Slider min={200} max={1200} value={height} style={{ width: 100 }} onChange={setHeight} />
+        <span>Width:</span>
+        <Slider min={200} max={1200} value={width} style={{ width: 100 }} onChange={setWidth} />
+        <span>Columns:</span>
+        <Slider
+          min={1}
+          max={5}
+          value={columnCount}
+          style={{ width: 100 }}
+          onChange={setColumnCount}
+        />
       </Space>
 
       {/* This represents whatever space the table has to fill. The table should always fill its width and height. */}
       <div style={{ width, height, border: "2px solid red" }}>
-        <VirtualTable dataSource={data} columns={columns} />
+        <VirtualTable
+          dataSource={data}
+          columns={cols}
+          rowSelection={{
+            onChange: console.log,
+            type: "checkbox",
+            selectedRowKeys: [0, 2, 3],
+            columnWidth: 30, // Must be a fixed value (every col needs a known fixed width)
+          }}
+        />
       </div>
     </>
   );
