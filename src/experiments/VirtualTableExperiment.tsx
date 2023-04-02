@@ -1,4 +1,4 @@
-import { Button, Slider, Space } from "antd";
+import { Button, Slider, Space, TableColumnType } from "antd";
 import { VirtualTable } from "../components/VirtualTable";
 import { useMemo, useState } from "react";
 import { random } from "lodash";
@@ -7,8 +7,22 @@ const MIN_COUNT = 2000;
 const MAX_COUNT = 3000;
 
 // Usage
-const columns = [
-  { title: "A", dataIndex: "key" },
+const columns: TableColumnType<{ key: number }>[] = [
+  {
+    title: "A",
+    dataIndex: "key",
+    filters: [{ text: "Less Than 3", value: "lessthan3" }],
+    sorter: ((a: any, b: any) => {
+      return a.key - b.key;
+    }) as any,
+    // sorter: { compare: (a, b) => a.key - b.key },
+    onFilter: (v, record) => {
+      if (v === "lessthan3") {
+        return record.key < 3;
+      }
+      return false;
+    },
+  },
   { title: "B", dataIndex: "key" },
   { title: "C", dataIndex: "key" },
   { title: "D", dataIndex: "key" },
