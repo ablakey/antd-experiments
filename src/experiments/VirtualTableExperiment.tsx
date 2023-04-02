@@ -48,16 +48,7 @@ export function VirtualTableExperiment() {
 
       {/* This represents whatever space the table has to fill. The table should always fill its width and height. */}
       <div style={{ width, height, border: "2px solid red" }}>
-        <VirtualTable
-          dataSource={data}
-          columns={cols}
-          rowSelection={{
-            onChange: console.log,
-            type: "checkbox",
-            selectedRowKeys: [0, 2, 3],
-            columnWidth: 30, // Must be a fixed value (every col needs a known fixed width)
-          }}
-        />
+        <VirtualTable dataSource={data} columns={cols} />
       </div>
     </>
   );
