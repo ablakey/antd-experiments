@@ -10,7 +10,7 @@
   "author": "Andrew Blakey",
   "license": "MIT",
   "prettier": {
-    "printWidth": 100
+    "printWidth": 130
   },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser",
@@ -56,9 +56,11 @@
   },
   "dependencies": {
     "antd": "^5.3.3",
+    "immer": "^9.0.21",
     "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-window": "^1.8.8"
+    "react-window": "^1.8.8",
+    "ts-essentials": "^9.3.1"
   }
 }

@@ -51,18 +51,12 @@ export function VirtualTableExperiment() {
         <span>Width:</span>
         <Slider min={200} max={1200} value={width} style={{ width: 100 }} onChange={setWidth} />
         <span>Columns:</span>
-        <Slider
-          min={1}
-          max={5}
-          value={columnCount}
-          style={{ width: 100 }}
-          onChange={setColumnCount}
-        />
+        <Slider min={1} max={5} value={columnCount} style={{ width: 100 }} onChange={setColumnCount} />
       </Space>
 
       {/* This represents whatever space the table has to fill. The table should always fill its width and height. */}
       <div style={{ width, height, border: "2px solid red" }}>
-        <VirtualTable dataSource={data} columns={cols} />
+        <VirtualTable dataSource={data} columns={cols} rowSelection={{ onChange: console.log, selectedKeys: [1, 2, 5] }} />
       </div>
     </>
   );
